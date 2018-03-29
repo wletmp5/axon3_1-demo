@@ -1,10 +1,12 @@
 package io.axoniq.labs.chat.roomapi;
 
+import io.axoniq.labs.chat.coreapi.*;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.UUID;
 import java.util.concurrent.Future;
 
 @RestController
@@ -18,26 +20,23 @@ public class CommandController {
 
     @PostMapping("/rooms")
     public Future<String> createChatRoom(@RequestBody @Valid Room room) {
-        // TODO: Send a command for this API call
-        throw new UnsupportedOperationException("Not implemented yet");
+        String roomId = room.getRoomId() == null ? UUID.randomUUID().toString() : room.roomId;
+        return commandGateway.send(new CreateRoomCommand(roomId, room.getName()));
     }
 
     @PostMapping("/rooms/{roomId}/participants")
     public Future<Void> joinChatRoom(@PathVariable String roomId, @RequestBody @Valid Participant participant) {
-        // TODO: Send a command for this API call
-        throw new UnsupportedOperationException("Not implemented yet");
+        return commandGateway.send(new JoinRoomCommand(participant.getName(), roomId));
     }
 
     @PostMapping("/rooms/{roomId}/messages")
     public Future<Void> postMessage(@PathVariable String roomId, @RequestBody @Valid PostMessageRequest message) {
-        // TODO: Send a command for this API call
-        throw new UnsupportedOperationException("Not implemented yet");
+        return commandGateway.send(new PostMessageCommand(message.getParticipant(), roomId, message.getMessage()));
     }
 
     @DeleteMapping("/rooms/{roomId}/participants")
     public Future<Void> leaveChatRoom(@PathVariable String roomId, @RequestBody @Valid Participant participant) {
-        // TODO: Send a command for this API call
-        throw new UnsupportedOperationException("Not implemented yet");
+        return commandGateway.send(new LeaveRoomCommand(participant.getName(), roomId));
     }
 
     public static class PostMessageRequest {

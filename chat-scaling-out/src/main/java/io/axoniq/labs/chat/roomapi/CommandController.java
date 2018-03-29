@@ -37,11 +37,8 @@ public class CommandController {
     }
 
     @PostMapping("/rooms/{roomId}/messages")
-    public Future<Void> postMessage(@PathVariable String roomId, @RequestBody @Valid Message message) {
-        Assert.notNull(message.getName(), "'name' missing - please provide a participant name");
-        Assert.notNull(message.getMessage(), "'message' missing - please provide a message to post");
-
-        return commandGateway.send(new PostMessageCommand(message.getName(), roomId, message.getMessage()));
+    public Future<Void> postMessage(@PathVariable String roomId, @RequestBody @Valid PostMessageRequest message) {
+        return commandGateway.send(new PostMessageCommand(message.getParticipant(), roomId, message.getMessage()));
     }
 
     @DeleteMapping("/rooms/{roomId}/participants")
@@ -51,19 +48,19 @@ public class CommandController {
         return commandGateway.send(new LeaveRoomCommand(participant.getName(), roomId));
     }
 
-    public static class Message {
+    public static class PostMessageRequest {
 
         @NotEmpty
-        private String name;
+        private String participant;
         @NotEmpty
         private String message;
 
-        public String getName() {
-            return name;
+        public String getParticipant() {
+            return participant;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setParticipant(String participant) {
+            this.participant = participant;
         }
 
         public String getMessage() {
